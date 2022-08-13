@@ -1,0 +1,649 @@
+(require (lib "graphics"))
+(open-graphics)
+(require(lib "draw.ss" "htdp"))
+;---------------------------------------------------------------------
+;Diego Alejandro Cruz Bedoya  
+;Universidad Tecnológica de Pereira  
+;Programa Ingeniería de Sistemas y Computación                       
+;Programación I Francisco Alejandro Medina                       
+;IS105
+;2020-1
+;--------------------------------------------------------------------
+(define(menup)
+    (begin
+      (define menup(open-viewport "Multijuegos" 800 600))
+      ((draw-pixmap menup)"menu/menudos.jpg"(make-posn 0.0 0.0))
+      (get-mouse-click menup)
+      (define x (posn-x (query-mouse-posn menup)))
+      (display x)
+      (define y (posn-y (query-mouse-posn menup)))
+      (display y)
+      (if(and(>= x 176)(<= x 626)(>= y 437)(<= y 515))
+       (begin
+       (close-viewport menup)
+       )
+  )
+      (if(and(>= x 174)(<= x 641)(>= y 189)(<= y 271))
+       (begin
+       (close-viewport menup)
+       (pre)
+       )
+  )
+      (if(and(>= x 175)(<= x 642)(>= y 312)(<= y 392))
+       (begin
+       (close-viewport menup)
+       (pres)
+       )
+  )
+      ))
+;---------------------------------------------------------------------
+;JUEGO AHORCADO
+(define (pre)
+  (define Miventana(open-viewport "Ventana de Inico" 800 600))
+  ((draw-pixmap Miventana)"ahorcado/presentacion.jpg" (make-posn 0.0 0.0))
+  (sleep 2)
+  (close-viewport Miventana)
+  (menu)
+  )
+;----------------------------------------------------------------------- 
+(define(menu)
+    (begin
+      (define miventana2(open-viewport "Ahorcado" 800 600))
+      ((draw-pixmap miventana2)"ahorcado/menu.jpg"(make-posn 0.0 0.0))
+      (get-mouse-click miventana2)
+      (define x (posn-x (query-mouse-posn miventana2)))
+      (display x)
+      (define y (posn-y (query-mouse-posn miventana2)))
+      (display y)
+      (if(and(>= x 402)(<= x 680)(>= y 253)(<= y 328))
+       (begin
+       (close-viewport miventana2)
+       (jue)
+       )
+  )
+      (if(and(>= x 402)(<= x 678)(>= y 337)(<= y 409))
+       (begin
+       (close-viewport miventana2)
+       (b)
+       )
+  )
+      (if(and(>= x 410)(<= x 669)(>= y 429)(<= y 491))
+       (begin
+       (close-viewport miventana2)
+       (acer)
+       )
+  )
+      (if(and(>= x 108)(<= x 208)(>= y 35)(<= y 67))
+       (begin
+       (close-viewport miventana2)
+       )
+  )
+      ))
+;----------------------------------------------------------------------
+
+;------------------------------------------
+(define (acer)
+  (define a(open-viewport "Acerca de" 800 600))
+  ((draw-pixmap a)"ahorcado/acerca.jpg" (make-posn 0.0 0.0))
+  (get-mouse-click a)
+  (define x(posn-x(query-mouse-posn a)))
+  (define y(posn-y(query-mouse-posn a)))
+  (if(and(>= x 106)(<= x 203)(>= y 36)(<= y 62))
+     (begin
+       (close-viewport a)
+       (menu)
+       )
+     )
+  )
+;--------------------------------------------------------------------------------------------------
+(define (b)
+  (define b(open-viewport "Instrucciones" 800 600))
+  ((draw-pixmap b)"ahorcado/instrucciones.jpg" (make-posn 0.0 0.0))
+  (get-mouse-click b)
+  (define x(posn-x(query-mouse-posn b)))
+  (define y(posn-y(query-mouse-posn b)))
+  (if(and(>= x 109)(<= x 204)(>= y 36)(<= y 62))
+     (begin
+       (close-viewport b)
+       (menu)
+       )
+     )
+  )
+(define paises (vector "colombia"
+                       "ecuador"
+                       "peru"
+                       "chile"
+                       "bolivia"
+                       "usa"
+                       "mexico"
+                       "canada"
+                       "rusia"
+                       "alemania"
+                       "china"
+                       "portugal"
+                       ))
+(define palabra1
+  (vector-ref paises (random (- (vector-length paises) 1)))
+  )
+(define tam
+  (string-length palabra1)
+  )
+(define palabra2
+  (make-string tam #\-)
+  )
+
+
+;----------------------------------------------------------------------
+(define(escrirletra juego palabra1 palabra2 pos letra vidas encontro tam)
+  (if(and(>= pos 0)(> vidas 0))
+     (if(equal? letra(string-ref palabra1 pos))
+        (begin
+          (string-set! palabra2 pos letra)
+          (escrirletra juego palabra1 palabra2 (- pos 1) letra vidas "V" tam)
+          )
+        (escrirletra juego palabra1 palabra2 (- pos 1) letra vidas encontro tam)
+        )
+     (begin
+       ;((draw-solid-rectangle juego)(make-posn 490 175)100 20 "white")
+       ((draw-string juego)(make-posn 488 192)palabra2)
+       (if(equal? palabra1 palabra2)
+          ((close-viewport juego)(gano))
+          (if(= vidas 0)
+             ((close-viewport juego)(perdio))
+             (if(equal? encontro "V")
+                (begin
+                   ;((draw-solid-rectangle juego (make-posn 565 40) 20 20 "white")
+                   (display "Vidas-->")
+                   (display vidas)
+                   (mostrar_muneco juego vidas)
+                   (hacer_click juego palabra1 palabra2 (- tam 1) vidas "F" tam)
+                   )
+                  (begin
+                    (display "Vidas-->")
+                    (display (- vidas 1)) 
+                    ;((draw-solid-rectangle juego)(make-posn 565 40)20 20 "white")
+                    (newline)
+                    (mostrar_muneco juego (- vidas 1))
+                    (newline)
+                    (if(> vidas 1)
+                       (begin
+                         (hacer_click juego palabra1 palabra2 (- tam 1)(- vidas 1) "F" tam)
+                         )
+                       ((close-viewport juego)(perdio))
+                       )
+                    )
+                  )
+                )
+             )
+          )
+       ))
+;--------------------------------------------------------------------
+(define (mostrar_muneco juego vidas)
+  ;(display vidas)
+  (cond ((= vidas 6)(vidas6 juego))
+        ((= vidas 5)(vidas5 juego))
+        ((= vidas 4)(vidas4 juego))
+        ((= vidas 3)(vidas3 juego))
+        ((= vidas 2)(vidas2 juego))
+        ((= vidas 1)(vidas1 juego))
+        ((= vidas 0)(vidas0 juego))
+   )
+  )
+(define(vidas6 juego)
+  (void)
+  )
+(define(vidas5 juego)
+  (begin
+    ((draw-pixmap juego)"ahorcado/cabeza.jpg" (make-posn 0.0 0.0))
+    )
+  )
+(define(vidas4 juego)
+  (begin
+    ((draw-pixmap juego)"ahorcado/cuerpo.jpg" (make-posn 0.0 0.0))
+    )
+  )
+(define(vidas3 juego)
+  (begin
+    ((draw-pixmap juego)"ahorcado/brazo1.jpg" (make-posn 0.0 0.0))
+    )
+  )
+(define(vidas2 juego)
+  (begin
+    ((draw-pixmap juego)"ahorcado/brazo2.jpg" (make-posn 0.0 0.0))
+    )
+  )
+(define(vidas1 juego)
+  (begin
+    ((draw-pixmap juego)"ahorcado/pierna1.jpg" (make-posn 0.0 0.0))
+    )
+  )
+(define(vidas0 juego)
+  (begin
+    ((draw-pixmap juego)"ahorcado/pierna2.jpg" (make-posn 0.0 0.0))
+    )
+  )
+
+;----------------------------------------------------------------------
+(define (hacer_click juego palabra1 palabra2 pos vidas encontro tam)
+ ;((draw-string juego) (make-posn 488 152) palabra1)
+  ((draw-solid-rectangle juego) (make-posn 480 175) 100 20 "white")
+  ((draw-string juego) (make-posn 488 192) palabra2)
+  (newline)
+  (get-mouse-click juego)
+  (define x (posn-x (query-mouse-posn juego)))
+  (define y (posn-y (query-mouse-posn juego)))
+  ;((draw-solid-rectangle juego) (make-posn 407 262) 100 20 "white")
+  (if (and(>= x 304) (<= x 335) (>= y 285)(<= y 317));a
+      (escrirletra juego palabra1 palabra2 (- tam 1) #\a vidas encontro tam)
+      )
+  (if (and(>= x 365) (<= x 389) (>= y 285)(<= y 315));b
+      (escrirletra juego palabra1 palabra2 (- tam 1) #\b vidas encontro tam)
+      )
+  (if (and(>= x 424) (<= x 451) (>= y 286)(<= y 313));c
+      (escrirletra juego palabra1 palabra2 (- tam 1) #\c vidas encontro tam)
+      )
+  (if (and(>= x 484) (<= x 511) (>= y 286)(<= y 319));d
+      (escrirletra juego palabra1 palabra2 (- tam 1) #\d vidas encontro tam)
+      )
+  (if (and(>= x 541) (<= x 565) (>= y 287)(<= y 317));e
+      (escrirletra juego palabra1 palabra2 (- tam 1) #\e vidas encontro tam)
+      )
+  (if (and(>= x 661) (<= x 683) (>= y 285)(<= y 314));g
+      (escrirletra juego palabra1 palabra2 (- tam 1) #\g vidas encontro tam)
+      )
+  (if (and(>= x 717) (<= x 747) (>= y 284)(<= y 317));h
+      (escrirletra juego palabra1 palabra2 (- tam 1) #\h vidas encontro tam)
+      )
+  (if (and(>= x 309) (<= x 332) (>= y 341)(<= y 374));i
+      (escrirletra juego palabra1 palabra2 (- tam 1) #\i vidas encontro tam)
+      )
+  (if (and(>= x 482) (<= x 507) (>= y 341)(<= y 374));l
+      (escrirletra juego palabra1 palabra2 (- tam 1) #\l vidas encontro tam)
+      )
+  (if (and(>= x 544) (<= x 568) (>= y 342)(<= y 374));m
+      (escrirletra juego palabra1 palabra2 (- tam 1) #\m vidas encontro tam)
+      )
+  (if (and(>= x 599) (<= x 625) (>= y 340)(<= y 374));n
+      (escrirletra juego palabra1 palabra2 (- tam 1) #\n vidas encontro tam)
+      )
+  (if (and(>= x 715) (<= x 743) (>= y 341)(<= y 372));o
+      (escrirletra juego palabra1 palabra2 (- tam 1) #\o vidas encontro tam)
+      )
+  (if (and(>= x 307) (<= x 333) (>= y 398)(<= y 430));p
+      (escrirletra juego palabra1 palabra2 (- tam 1) #\p vidas encontro tam)
+      )
+  (if (and(>= x 423) (<= x 452) (>= y 397)(<= y 428));r
+      (escrirletra juego palabra1 palabra2 (- tam 1) #\r vidas encontro tam)
+      )
+  (if (and(>= x 483) (<= x 510) (>= y 397)(<= y 429));s
+      (escrirletra juego palabra1 palabra2 (- tam 1) #\s vidas encontro tam)
+      )
+  (if (and(>= x 540) (<= x 569) (>= y 395)(<= y 428));t
+      (escrirletra juego palabra1 palabra2 (- tam 1) #\t vidas encontro tam)
+      )
+  (if (and(>= x 598) (<= x 626) (>= y 397)(<= y 429));u
+      (escrirletra juego palabra1 palabra2 (- tam 1) #\u vidas encontro tam)
+      )
+  (if (and(>= x 658) (<= x 685) (>= y 400)(<= y 429));v
+      (escrirletra juego palabra1 palabra2 (- tam 1) #\v vidas encontro tam)
+      )
+  (if (and(>= x 458) (<= x 485) (>= y 454)(<= y 485));x
+      (escrirletra juego palabra1 palabra2 (- tam 1) #\x vidas encontro tam)
+      )
+  (if (and(>= x 601) (<= x 624) (>= y 285)(<= y 316));f
+      (escrirletra juego palabra1 palabra2 (- tam 1) #\f vidas encontro tam)
+      )
+  (if (and(>= x 366) (<= x 392) (>= y 342)(<= y 372));j
+      (escrirletra juego palabra1 palabra2 (- tam 1) #\j vidas encontro tam)
+      )
+  (if (and(>= x 426) (<= x 451) (>= y 343)(<= y 373));k
+      (escrirletra juego palabra1 palabra2 (- tam 1) #\k vidas encontro tam)
+      )
+  (if (and(>= x 364) (<= x 393) (>= y 399)(<= y 429));q
+      (escrirletra juego palabra1 palabra2 (- tam 1) #\q vidas encontro tam)
+      )
+  (if (and(>= x 716) (<= x 742) (>= y 399)(<= y 431));w
+      (escrirletra juego palabra1 palabra2 (- tam 1) #\w vidas encontro tam)
+      )
+  (if (and(>= x 518) (<= x 541) (>= y 453)(<= y 484));y
+      (escrirletra juego palabra1 palabra2 (- tam 1) #\y vidas encontro tam)
+      )
+  (if (and(>= x 576) (<= x 600) (>= y 454)(<= y 486));z
+      (escrirletra juego palabra1 palabra2 (- tam 1) #\z vidas encontro tam)
+      )
+  )
+(display palabra2)
+(define (jue)
+  (define juego(open-viewport "Ahorcado" 800 600))
+  ((draw-pixmap juego)"ahorcado/juego.jpg" (make-posn 0.0 0.0))
+  (get-mouse-click juego)
+  (define x (posn-x (query-mouse-posn juego)))
+  ;(display x)
+  (define y (posn-y (query-mouse-posn juego)))
+  ;(display y)
+  (hacer_click juego palabra1 palabra2 (- tam 1) 6 "F" tam)
+  (if(and(>= x 106)(<= x 203)(>= y 36)(<= y 62))
+     (begin
+       (close-viewport juego)
+       (menu)
+       )
+  ))
+(define(perdio)
+  (define jud(open-viewport "Ahorcado" 800 600))
+  ((draw-pixmap jud)"ahorcado/perdio.jpg" (make-posn 0.0 0.0))
+  (get-mouse-click jud)
+  (close-viewport jud)
+  (pre)
+  )
+
+(define(gano)
+  (define gan(open-viewport "Ahorcado" 800 600))
+  ((draw-pixmap gan)"ahorcado/gan.jpg" (make-posn 0.0 0.0))
+  (get-mouse-click gan)
+  (close-viewport gan)
+  (pre)
+  )
+;-----------------------------------------------------------------------
+;JUEGO TRIKI
+(define(validar_juego fila1 fila2 fila3)
+  (if(or(and(equal?(vector-ref fila1 0) #\x)
+            (equal?(vector-ref fila1 1) #\x)
+            (equal?(vector-ref fila1 2) #\x)
+            )
+        (and(equal?(vector-ref fila2 0) #\x)
+            (equal?(vector-ref fila2 1) #\x)
+            (equal?(vector-ref fila2 2) #\x)
+            )
+        (and(equal?(vector-ref fila3 0) #\x)
+            (equal?(vector-ref fila3 1) #\x)
+            (equal?(vector-ref fila3 2) #\x)
+            )
+        (and(equal?(vector-ref fila1 0) #\x)
+            (equal?(vector-ref fila2 0) #\x)
+            (equal?(vector-ref fila3 0) #\x)
+            )
+        (and(equal?(vector-ref fila1 1) #\x)
+            (equal?(vector-ref fila2 1) #\x)
+            (equal?(vector-ref fila3 1) #\x)
+            )
+        (and(equal?(vector-ref fila1 2) #\x)
+            (equal?(vector-ref fila2 2) #\x)
+            (equal?(vector-ref fila3 2) #\x)
+            )
+        (and(equal?(vector-ref fila1 0) #\x)
+            (equal?(vector-ref fila2 1) #\x)
+            (equal?(vector-ref fila3 2) #\x)
+            )
+        (and(equal?(vector-ref fila1 2) #\x)
+            (equal?(vector-ref fila2 1) #\x)
+            (equal?(vector-ref fila3 0) #\x)
+            )
+        )
+        
+     (gax)
+     (if(or(and(equal?(vector-ref fila1 0) #\o)
+            (equal?(vector-ref fila1 1) #\o)
+            (equal?(vector-ref fila1 2) #\o)
+            )
+        (and(equal?(vector-ref fila2 0) #\o)
+            (equal?(vector-ref fila2 1) #\o)
+            (equal?(vector-ref fila2 2) #\o)
+            )
+        (and(equal?(vector-ref fila3 0) #\o)
+            (equal?(vector-ref fila3 1) #\o)
+            (equal?(vector-ref fila3 2) #\o)
+            )
+        (and(equal?(vector-ref fila1 0) #\o)
+            (equal?(vector-ref fila2 0) #\o)
+            (equal?(vector-ref fila3 0) #\o)
+            )
+        (and(equal?(vector-ref fila1 1) #\o)
+            (equal?(vector-ref fila2 1) #\o)
+            (equal?(vector-ref fila3 1) #\o)
+            )
+        (and(equal?(vector-ref fila1 2) #\o)
+            (equal?(vector-ref fila2 2) #\o)
+            (equal?(vector-ref fila3 2) #\o)
+            )
+        (and(equal?(vector-ref fila1 0) #\o)
+            (equal?(vector-ref fila2 1) #\o)
+            (equal?(vector-ref fila3 2) #\o)
+            )
+        (and(equal?(vector-ref fila3 2) #\o)
+            (equal?(vector-ref fila1 1) #\o)
+            (equal?(vector-ref fila1 0) #\o)
+            )
+        
+        )
+        (gao)   
+  )))
+(define (pres)
+  (define tri(open-viewport "Triki" 800 600))
+  ((draw-pixmap tri)"triki/pree.jpg" (make-posn 0.0 0.0))
+  (sleep 2)
+  (close-viewport tri)
+  (mostrar_vector fila1 fila2 fila3)
+  (triki fila1 fila2 fila3 #\o)
+  )
+;----------------------------------------------------------
+(define fila1 (make-vector 3 #\?))
+(define fila2 (make-vector 3 #\?))
+(define fila3 (make-vector 3 #\?))
+(define matriz (vector fila1 fila2 fila3))
+;---------------------------------------------------------
+(define(mostrar_vector fila1 fila2 fila3)
+  (newline)
+  (display fila1)
+  (newline)
+  (display fila2)
+  (newline)
+  (display fila3)
+  (newline)
+  )
+;----------------------------------
+(define(jugar wtriki fila1 fila2 fila3 jugador)
+  (get-mouse-click wtriki)
+  (define x(posn-x(query-mouse-posn wtriki)))
+  (define y(posn-y(query-mouse-posn wtriki)))
+  (if(and(>= x 2)(<= x 160)(>= y 3)(<= y 157))
+     (begin
+       (if(equal? jugador #\x)
+          (begin
+            ((draw-pixmap wtriki)"triki/x.jpg"(make-posn 71 79))
+            (vector-set! fila1 0 #\x)
+            (mostrar_vector fila1 fila2 fila3)
+            (validar_juego fila1 fila2 fila3)
+            (jugar wtriki fila1 fila2 fila3 #\o)
+            )
+          (begin
+            ((draw-pixmap wtriki)"triki/o.jpg"(make-posn 71 79))
+            (vector-set! fila1 0 #\o)
+            (mostrar_vector fila1 fila2 fila3)
+            (validar_juego fila1 fila2 fila3)
+            (jugar wtriki fila1 fila2 fila3 #\x)
+          )
+          )
+       )
+  )
+  (if(and(>= x 168)(<= x 328)(>= y 2)(<= y 157))
+     (begin
+       (if(equal? jugador #\x)
+          (begin
+            ((draw-pixmap wtriki)"triki/x.jpg"(make-posn 241 76))
+            (vector-set! fila1 1 #\x)
+            (mostrar_vector fila1 fila2 fila3)
+            (validar_juego fila1 fila2 fila3)
+            (jugar wtriki fila1 fila2 fila3 #\o)
+            )
+          (begin
+            ((draw-pixmap wtriki)"triki/o.jpg"(make-posn 241 76))
+            (vector-set! fila1 1 #\o)
+            (mostrar_vector fila1 fila2 fila3)
+            (validar_juego fila1 fila2 fila3)
+            (jugar wtriki fila1 fila2 fila3 #\x)
+          )
+          )
+       )
+  )
+  (if(and(>= x 335)(<= x 496)(>= y 1)(<= y 157))
+     (begin
+       (if(equal? jugador #\x)
+          (begin
+            ((draw-pixmap wtriki)"triki/x.jpg"(make-posn 409 77))
+            (vector-set! fila1 2 #\x)
+            (mostrar_vector fila1 fila2 fila3)
+            (jugar wtriki fila1 fila2 fila3 #\o)
+            )
+          (begin
+            ((draw-pixmap wtriki)"triki/o.jpg"(make-posn 409 77))
+            (vector-set! fila1 2 #\o)
+            (mostrar_vector fila1 fila2 fila3)
+            (jugar wtriki fila1 fila2 fila3 #\x)
+          )
+          )
+       )
+  )
+    (if(and(>= x 2)(<= x 161)(>= y 165)(<= y 318))
+     (begin
+       (if(equal? jugador #\x)
+          (begin
+            ((draw-pixmap wtriki)"triki/x.jpg"(make-posn 72 242))
+            (vector-set! fila2 0 #\x)
+            (mostrar_vector fila1 fila2 fila3)
+            (validar_juego fila1 fila2 fila3)
+            (jugar wtriki fila1 fila2 fila3 #\o)
+            )
+          (begin
+            ((draw-pixmap wtriki)"triki/o.jpg"(make-posn 72 242))
+            (vector-set! fila2 0 #\o)
+            (mostrar_vector fila1 fila2 fila3)
+            (validar_juego fila1 fila2 fila3)
+            (jugar wtriki fila1 fila2 fila3 #\x)
+          )
+          )
+       )
+  )
+    (if(and(>= x 169)(<= x 327)(>= y 164)(<= y 319))
+     (begin
+       (if(equal? jugador #\x)
+          (begin
+            ((draw-pixmap wtriki)"triki/x.jpg"(make-posn 242 241))
+            (vector-set! fila2 1 #\x)
+            (mostrar_vector fila1 fila2 fila3)
+            (validar_juego fila1 fila2 fila3)
+            (jugar wtriki fila1 fila2 fila3 #\o)
+            )
+          (begin
+            ((draw-pixmap wtriki)"triki/o.jpg"(make-posn 242 241))
+            (vector-set! fila2 1 #\o)
+            (mostrar_vector fila1 fila2 fila3)
+            (validar_juego fila1 fila2 fila3)
+            (jugar wtriki fila1 fila2 fila3 #\x)
+          )
+          )
+       )
+  )
+    (if(and(>= x 336)(<= x 495)(>= y 165)(<= y 319))
+     (begin
+       (if(equal? jugador #\x)
+          (begin
+            ((draw-pixmap wtriki)"triki/x.jpg"(make-posn 407 246))
+            (vector-set! fila2 2 #\x)
+            (mostrar_vector fila1 fila2 fila3)
+            (validar_juego fila1 fila2 fila3)
+            (jugar wtriki fila1 fila2 fila3 #\o)
+            )
+          (begin
+            ((draw-pixmap wtriki)"triki/o.jpg"(make-posn 407 246))
+            (vector-set! fila2 2 #\o)
+            (mostrar_vector fila1 fila2 fila3)
+            (validar_juego fila1 fila2 fila3)
+            (jugar wtriki fila1 fila2 fila3 #\x)
+          )
+          )
+       )
+  )
+      (if(and(>= x 2)(<= x 160)(>= y 326)(<= y 482))
+     (begin
+       (if(equal? jugador #\x)
+          (begin
+            ((draw-pixmap wtriki)"triki/x.jpg"(make-posn 71 411))
+            (vector-set! fila3 0 #\x)
+            (mostrar_vector fila1 fila2 fila3)
+            (validar_juego fila1 fila2 fila3)
+            (jugar wtriki fila1 fila2 fila3 #\o)
+            )
+          (begin
+            ((draw-pixmap wtriki)"triki/o.jpg"(make-posn 71 411))
+            (vector-set! fila3 0 #\o)
+            (mostrar_vector fila1 fila2 fila3)
+            (validar_juego fila1 fila2 fila3)
+            (jugar wtriki fila1 fila2 fila3 #\x)
+          )
+          )
+       )
+  )
+      (if(and(>= x 167)(<= x 327)(>= y 326)(<= y 484))
+     (begin
+       (if(equal? jugador #\x)
+          (begin
+            ((draw-pixmap wtriki)"triki/x.jpg"(make-posn 245 404))
+            (vector-set! fila3 1 #\x)
+            (mostrar_vector fila1 fila2 fila3)
+            (validar_juego fila1 fila2 fila3)
+            (jugar wtriki fila1 fila2 fila3 #\o)
+            )
+          (begin
+            ((draw-pixmap wtriki)"triki/o.jpg"(make-posn 245 404))
+            (vector-set! fila3 1 #\o)
+            (mostrar_vector fila1 fila2 fila3)
+            (validar_juego fila1 fila2 fila3)
+            (jugar wtriki fila1 fila2 fila3 #\x)
+          )
+          )
+       )
+  )
+      (if(and(>= x 336)(<= x 496)(>= y 326)(<= y 484))
+     (begin
+       (if(equal? jugador #\x)
+          (begin
+            ((draw-pixmap wtriki)"triki/x.jpg"(make-posn 409 402))
+            (vector-set! fila3 2 #\x)
+            (mostrar_vector fila1 fila2 fila3)
+            (validar_juego fila1 fila2 fila3)
+            (jugar wtriki fila1 fila2 fila3 #\o)
+            )
+          (begin
+            ((draw-pixmap wtriki)"triki/o.jpg"(make-posn 409 402))
+            (vector-set! fila3 2 #\o)
+            (mostrar_vector fila1 fila2 fila3)
+            (validar_juego fila1 fila2 fila3)
+            (jugar wtriki fila1 fila2 fila3 #\x)
+          )
+          )
+       )
+  )
+  )
+(define(gax)
+  (close-viewport wtriki)
+  )
+(define(gao)
+  (close-viewport wtriki)
+  )
+(define(triki fila1 fila2 fila3 jugador)
+  (define wtriki(open-viewport "TRIKI" 498 485))
+  ((draw-pixmap wtriki)"triki/triki.jpg"(make-posn 0.0 0.0))
+  (jugar wtriki fila1 fila2 fila3 jugador)
+)
+
+;-----------------------------------------------------------------
+
+
+  
+(menup)
+
+
+
+
+ 
+ 
